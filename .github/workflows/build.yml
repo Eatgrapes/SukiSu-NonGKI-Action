@@ -45,7 +45,6 @@ jobs:
 
       - name: Download Custom Toolchains if Specified
         run: |
-        # deps
         wget https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
         sudo ./llvm.sh ${{ env.CLANG_VERSION }}
