@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -80,7 +80,7 @@ jobs:
             export LD=ld.lld
           fi
           
-           sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${{ env.CLANG_VERSION }} 100
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${{ env.CLANG_VERSION }} 100
           sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${{ env.CLANG_VERSION }} 100
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-${{ env.CLANG_VERSION }} 100
           sudo update-alternatives --install /usr/bin/llvm-nm llvm-nm /usr/bin/llvm-nm-${{ env.CLANG_VERSION }} 100
@@ -89,12 +89,6 @@ jobs:
           sudo update-alternatives --set clang /usr/bin/clang-${{ env.CLANG_VERSION }}
           sudo update-alternatives --set clang++ /usr/bin/clang++-${{ env.CLANG_VERSION }}
           sudo update-alternatives --set ld.lld /usr/bin/ld.lld-${{ env.CLANG_VERSION }}
-          
-          # cross-compile
-          # 交叉编译
-          export CLANG_TRIPLE=aarch64-linux-gnu-
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
           echo "HOSTCC=clang" >> $GITHUB_ENV
           echo "HOSTCXX=clang++" >> $GITHUB_ENV
@@ -134,9 +128,9 @@ jobs:
           echo "" >> $DEFCONFIG_FILE
           echo "# KernelSU" >> $DEFCONFIG_FILE
           echo "CONFIG_KSU=y" >> $DEFCONFIG_FILE
-          echo "CONFIG_KPM=y" >> $DEFCONFIG_FILE
-          echo "CONFIG_KALLSYMS=y" >> $DEFCONFIG_FILE
-          echo "CONFIG_KALLSYMS_ALL=y" >> $DEFCONFIG_FILE
+          echo "CONFIG_KPM=y" >> $GITHUB_ENV
+          echo "CONFIG_KALLSYMS=y" >> $GITHUB_ENV
+          echo "CONFIG_KALLSYMS_ALL=y" >> $GITHUB_ENV
 
       - name: Prepare Build
         run: |
@@ -151,9 +145,9 @@ jobs:
           unset CXXFLAGS
           unset LDFLAGS
           
-          make ARCH=arm64 O=out \
-            CC=clang-21 \
-            LD=ld.lld-21
+          make -j$(nproc) ARCH=arm64 O=out \
+            CC=clang \
+            LD=ld.lld
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
